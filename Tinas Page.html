@@ -1,0 +1,1380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tina's Page</title>
+<style>
+  :root {
+    --bg: oklch(0.98 0.01 80);
+    --paper: oklch(1 0 0);
+    --ink: oklch(0.22 0.02 60);
+    --ink-soft: oklch(0.42 0.02 60);
+    --rule: oklch(0.88 0.015 70);
+    --rule-soft: oklch(0.93 0.012 70);
+    --accent: oklch(0.55 0.15 40);
+    --accent-soft: oklch(0.94 0.04 60);
+    --accent-deep: oklch(0.42 0.14 40);
+    --done: oklch(0.62 0.08 150);
+    --done-soft: oklch(0.95 0.04 150);
+    --shadow: 0 1px 0 oklch(0.88 0.015 70), 0 12px 30px -18px oklch(0.3 0.05 60 / 0.25);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 22px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, textarea, select {
+    font: inherit;
+    color: inherit;
+  }
+  textarea { font-family: inherit; }
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 56px 48px 120px;
+  }
+  .masthead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 28px;
+    border-bottom: 3px solid var(--ink);
+    margin-bottom: 56px;
+    flex-wrap: wrap;
+  }
+  .masthead h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 72px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .today {
+    font-size: 24px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  section.block { margin-bottom: 72px; }
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+  .section-head h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 44px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .section-head .count {
+    font-size: 20px;
+    color: var(--ink-soft);
+    background: var(--paper);
+    border: 2px solid var(--rule);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Generic big buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 0 22px;
+    border-radius: 12px;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 22px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.05s ease, background 0.15s ease, color 0.15s ease;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .btn.primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+  .btn.ghost { border-color: var(--rule); }
+  .btn.ghost:hover { background: var(--rule-soft); color: var(--ink); }
+  .btn.danger { border-color: var(--rule); color: var(--ink-soft); }
+  .btn.danger:hover { background: oklch(0.55 0.18 25); border-color: oklch(0.55 0.18 25); color: white; }
+  .btn.small { min-height: 44px; padding: 0 16px; font-size: 19px; }
+
+  /* SCHEDULE */
+  .schedule-group { margin-bottom: 36px; }
+  .schedule-group h3 {
+    font-family: Georgia, serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--rule);
+    color: var(--ink);
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .schedule-group h3 .sub {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+  .event {
+    display: grid;
+    grid-template-columns: 180px 1fr auto;
+    gap: 24px;
+    align-items: start;
+    padding: 22px 4px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .event:last-child { border-bottom: none; }
+  .event .date {
+    font-weight: 700;
+    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-deep);
+    line-height: 1.25;
+  }
+  .event .date .weekday {
+    display: block;
+    font-weight: 500;
+    color: var(--ink-soft);
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .event .body .title {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+  .event .body .desc {
+    color: var(--ink-soft);
+    font-size: 20px;
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .event .actions {
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .event:hover .actions, .event:focus-within .actions { opacity: 1; }
+  .empty {
+    color: var(--ink-soft);
+    font-style: italic;
+    padding: 16px 4px;
+    font-size: 20px;
+  }
+
+  /* Add event form */
+  .add-event {
+    margin-top: 24px;
+    padding: 24px;
+    background: var(--paper);
+    border: 2px dashed var(--rule);
+    border-radius: 16px;
+  }
+  .add-event.open { border-style: solid; box-shadow: var(--shadow); }
+  .add-event-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px 12px;
+    margin-top: 8px;
+  }
+  .add-event-grid label {
+    margin-top: 8px;
+  }
+  .add-event-grid label:first-of-type {
+    margin-top: 0;
+  }
+  .add-event label {
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .field {
+    width: 100%;
+    min-height: 56px;
+    padding: 12px 16px;
+    border: 2px solid var(--rule);
+    border-radius: 10px;
+    background: var(--bg);
+    font-size: 22px;
+  }
+  .field:focus { outline: none; border-color: var(--accent); background: white; }
+  textarea.field { min-height: 96px; resize: vertical; line-height: 1.4; }
+  .add-event .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: flex-end;
+  }
+
+  /* TO DO */
+  .todo-list { display: flex; flex-direction: column; gap: 12px; }
+  .todo {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 18px;
+    align-items: start;
+    padding: 18px 22px;
+    background: var(--paper);
+    border: 2px solid var(--rule);
+    border-radius: 14px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .todo.done {
+    background: var(--done-soft);
+    border-color: oklch(0.85 0.06 150);
+  }
+  .check {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 3px solid var(--ink);
+    background: var(--paper);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 4px;
+    transition: all 0.15s ease;
+  }
+  .check:hover { background: var(--accent-soft); }
+  .check.checked {
+    background: var(--done);
+    border-color: var(--done);
+  }
+  .check svg { display: block; }
+  .todo .title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    text-wrap: pretty;
+  }
+  .todo.done .title {
+    text-decoration: line-through;
+    color: var(--ink-soft);
+  }
+  .todo .desc {
+    color: var(--ink-soft);
+    font-size: 20px;
+    margin: 0 0 8px;
+    text-wrap: pretty;
+  }
+  .todo .assignee {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    color: var(--accent-deep);
+    font-weight: 600;
+    background: var(--accent-soft);
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+  .todo.done .assignee {
+    background: oklch(0.92 0.04 150);
+    color: oklch(0.4 0.1 150);
+  }
+  .todo .actions {
+    display: flex;
+    gap: 8px;
+    align-self: center;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .todo:hover .actions, .todo:focus-within .actions { opacity: 1; }
+
+  /* PROJECTS */
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .project {
+    background: var(--paper);
+    border: 2px solid var(--rule);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    min-height: 360px;
+  }
+  .assignee-picker {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .assignee-btn {
+    flex: 1;
+    min-width: 100px;
+    min-height: 56px;
+    padding: 0 18px;
+    border-radius: 10px;
+    border: 2px solid var(--rule);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 22px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .assignee-btn:hover {
+    border-color: var(--ink);
+  }
+  .assignee-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .project-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .project-tools {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .project:hover .project-tools,
+  .project:focus-within .project-tools { opacity: 1; }
+  .icon-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    color: var(--ink-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .icon-btn svg { width: 14px; height: 14px; }
+  .icon-btn:hover {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .icon-btn.danger:hover {
+    background: oklch(0.55 0.18 25);
+    border-color: oklch(0.55 0.18 25);
+    color: white;
+  }
+  .project h3 {
+    font-family: Georgia, serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  .project-title-input {
+    font-family: Georgia, serif;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    min-height: 52px;
+  }
+  .project .pkicker {
+    font-size: 16px;
+    color: var(--accent-deep);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .project textarea {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 12px 0 0;
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink);
+    resize: none;
+    border-top: 1px solid var(--rule);
+  }
+  .project textarea:focus { outline: none; }
+  .project .saved {
+    font-size: 16px;
+    color: var(--ink-soft);
+    margin-top: 12px;
+    align-self: flex-end;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .project .saved.visible { opacity: 1; }
+
+  @media (max-width: 900px) {
+    .page { padding: 32px 24px 80px; }
+    .masthead h1 { font-size: 56px; }
+    .section-head h2 { font-size: 36px; }
+    .event { grid-template-columns: 140px 1fr; }
+    .event .actions { grid-column: 1 / -1; opacity: 1; justify-content: flex-end; }
+    .add-event-grid { grid-template-columns: 1fr; gap: 8px 12px; }
+    .add-event-grid label { margin-top: 8px; }
+    .projects { grid-template-columns: 1fr; }
+    .todo { grid-template-columns: 48px 1fr; }
+    .todo .actions { grid-column: 1 / -1; opacity: 1; justify-content: flex-end; }
+  }
+
+  /* TOP MENU */
+  .topmenu {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .topmenu-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 10px;
+    border: 2px solid var(--rule);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .topmenu-btn:hover {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* MODAL */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: oklch(0.2 0.02 60 / 0.5);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 80px 20px 40px;
+    z-index: 100;
+    overflow-y: auto;
+  }
+  .modal {
+    background: var(--paper);
+    border-radius: 18px;
+    box-shadow: 0 20px 60px -10px oklch(0.2 0.05 60 / 0.4);
+    max-width: 520px;
+    width: 100%;
+    position: relative;
+    padding: 36px 36px 32px;
+  }
+  .modal.wide { max-width: 920px; }
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-close:hover { background: var(--rule-soft); color: var(--ink); }
+  .panel-body h2 {
+    font-family: Georgia, serif;
+    font-size: 32px;
+    margin: 0 0 8px;
+  }
+  .panel-lead {
+    color: var(--ink-soft);
+    font-size: 19px;
+    margin: 0 0 20px;
+  }
+  .panel-note {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-soft);
+    font-size: 16px;
+    font-style: italic;
+  }
+  .signin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .signin-form label { font-weight: 600; font-size: 18px; }
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 18px;
+  }
+  .history-table thead th {
+    text-align: left;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    font-weight: 700;
+    padding: 0 16px 10px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .history-table tbody td {
+    padding: 14px 16px 14px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  .history-table tbody tr:last-child td { border-bottom: none; }
+  .history-table th:last-child, .history-table td:last-child { padding-right: 0; }
+  .history-kind {
+    display: inline-block;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    color: var(--accent-deep);
+    white-space: nowrap;
+  }
+  .history-date {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .history-text { color: var(--ink); }
+  .history-who { color: var(--ink-soft); white-space: nowrap; }
+
+  @media (max-width: 600px) {
+    .modal { padding: 28px 20px 24px; border-radius: 14px; }
+    .modal-backdrop { padding: 40px 12px 20px; }
+    .topmenu { margin-bottom: 20px; }
+    .topmenu-btn { font-size: 16px; padding: 0 12px; }
+    .history-table { font-size: 16px; }
+    .history-table thead { display: none; }
+    .history-table tbody, .history-table tr, .history-table td { display: block; width: 100%; }
+    .history-table tbody tr { padding: 12px 0; border-bottom: 1px solid var(--rule-soft); }
+    .history-table tbody tr:last-child { border-bottom: none; }
+    .history-table tbody td { padding: 2px 0; border: none; }
+  }
+
+  @media print {
+    .topmenu, .modal-backdrop { display: none !important; }
+  }
+
+  @media (max-width: 600px) {
+    body { font-size: 19px; }
+    .page { padding: 20px 16px 60px; }
+
+    .masthead {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 36px;
+      padding-bottom: 16px;
+    }
+    .masthead h1 { font-size: 40px; }
+    .today { font-size: 17px; }
+
+    section.block { margin-bottom: 48px; }
+    .section-head {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .section-head h2 { font-size: 30px; }
+    .section-head > div[style*="margin-left"] { margin-left: 0 !important; }
+    .section-head .btn { width: 100%; }
+
+    /* Schedule: stack date above body */
+    .event {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      padding: 16px 0;
+    }
+    .event .date { font-size: 18px; }
+    .event .date .weekday { font-size: 14px; margin-bottom: 2px; display: inline; margin-right: 8px; }
+    .event .body .title { font-size: 20px; }
+    .event .body .desc { font-size: 17px; }
+    .event .actions { opacity: 1; justify-content: flex-start; margin-top: 4px; }
+
+    .schedule-group h3 { font-size: 22px; }
+    .schedule-group h3 .sub { font-size: 14px; }
+
+    /* Forms */
+    .add-event { padding: 16px; }
+    .field { font-size: 18px; min-height: 52px; padding: 10px 12px; }
+    textarea.field { min-height: 88px; }
+    .add-event .actions { flex-direction: column-reverse; }
+    .add-event .actions .btn { width: 100%; }
+
+    /* Assignee buttons wrap to 2 rows */
+    .assignee-btn {
+      flex: 1 1 calc(50% - 4px);
+      min-width: 0;
+      font-size: 18px;
+      min-height: 52px;
+      padding: 0 10px;
+    }
+
+    /* Todos */
+    .todo {
+      grid-template-columns: 40px 1fr;
+      gap: 12px;
+      padding: 14px 16px;
+    }
+    .check { width: 38px; height: 38px; }
+    .todo .title { font-size: 20px; }
+    .todo .desc { font-size: 17px; }
+    .todo .assignee { font-size: 15px; }
+    .todo .actions { opacity: 1; justify-content: flex-start; margin-top: 6px; grid-column: 1 / -1; }
+
+    /* Projects: bump icon buttons back to comfortable touch size */
+    .project { padding: 20px; min-height: 0; }
+    .project-tools { opacity: 1 !important; }
+    .project h3 { font-size: 22px; }
+    .project .pkicker { font-size: 14px; }
+    .project textarea { font-size: 17px; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 8px; }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .project-title-input { font-size: 22px; min-height: 48px; }
+
+    /* Buttons everywhere */
+    .btn { font-size: 19px; min-height: 52px; }
+    .btn.small { min-height: 40px; font-size: 17px; padding: 0 12px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+
+// ---------- Date helpers ----------
+const TODAY = (() => {
+  const t = new Date();
+  return new Date(t.getFullYear(), t.getMonth(), t.getDate());
+})();
+
+function startOfWeek(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - d.getDay());
+  return d;
+}
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+function parseISO(iso) {
+  if (!iso) return null;
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+function toISO(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function formatLong(date) {
+  return `${WEEKDAYS[date.getDay()]}, ${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
+function formatEventDate(date) {
+  return {
+    weekday: WEEKDAYS[date.getDay()],
+    main: `${MONTHS[date.getMonth()].slice(0, 3)} ${date.getDate()}`,
+  };
+}
+
+const THIS_WEEK_START = startOfWeek(TODAY);
+const NEXT_WEEK_START = addDays(THIS_WEEK_START, 7);
+const FUTURE_START = addDays(THIS_WEEK_START, 14);
+
+function bucketFor(iso) {
+  const d = parseISO(iso);
+  if (!d) return "future";
+  if (d < THIS_WEEK_START) return "past";
+  if (d < NEXT_WEEK_START) return "this";
+  if (d < FUTURE_START) return "next";
+  return "future";
+}
+
+// ---------- localStorage hook ----------
+function usePersistedState(key, initial) {
+  const [v, setV] = useState(() => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw == null) return initial;
+      return JSON.parse(raw);
+    } catch (e) { return initial; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {}
+  }, [key, v]);
+  return [v, setV];
+}
+
+// ---------- Seed data ----------
+const SEED_EVENTS = [
+  { id: "e1", date: toISO(addDays(TODAY, 1)), title: "Doctor — Dr. Patel", desc: "Yearly check-up. Bring the list of medications and the blue folder." },
+  { id: "e2", date: toISO(addDays(TODAY, 3)), title: "Lunch with Margaret", desc: "12:00 PM at the Riverside Cafe. She's driving." },
+  { id: "e3", date: toISO(addDays(TODAY, 9)), title: "Realtor Meeting — Pointe Pleasant", desc: "Walk-through with Susan. Bring the spare keys and the closet inventory." },
+  { id: "e4", date: toISO(addDays(TODAY, 11)), title: "Phone Call with David", desc: "Review the contract for Independent Living. 3:00 PM." },
+  { id: "e5", date: toISO(addDays(TODAY, 24)), title: "Move-in Day", desc: "Independent Living. Movers arrive at 9:00 AM. Confirm with Anna the night before." },
+  { id: "e6", date: toISO(addDays(TODAY, 45)), title: "Family Visit — Kate & the kids", desc: "They'll stay through the weekend. Make up the guest room." },
+];
+
+const SEED_TODOS = [
+  { id: "t1", title: "Refill heart medication", desc: "Pharmacy on Main Street. Show new insurance card.", assignee: "Tina", done: false },
+  { id: "t2", title: "Sign and return the closing paperwork", desc: "Pointe Pleasant. Notarize at the bank.", assignee: "Tina", done: false },
+  { id: "t3", title: "Get boxes for the kitchen", desc: "Twelve medium, six large. Sturdy ones.", assignee: "Anna", done: false },
+  { id: "t4", title: "Call about the broken porch light", desc: "Huntington Lakes. Property manager — Greg.", assignee: "David", done: true },
+  { id: "t5", title: "Make a packing list for the bedroom", desc: "Keep it simple — what stays, what goes, what gets donated.", assignee: "Tina", done: false },
+];
+
+const SEED_PROJECTS = [
+  { id: "p-independent", title: "Independent Living", notes: "Move-in date: May 24.\n\nUnit 412 — east-facing, two bedrooms.\nMonthly fee includes meals, housekeeping, transportation.\n\nStill to decide: which armchair to bring, whether to keep the dining set or donate.\n\nAnna is helping with packing on weekends. David is handling the paperwork." },
+  { id: "p-pointe", title: "Pointe Pleasant", notes: "Listed at $385,000.\nRealtor: Susan Hammond — (555) 412-9080.\n\nOpen house was last Sunday — twenty-three people through the door.\nTwo offers in. Susan is calling Wednesday with her recommendation.\n\nClosing paperwork in the blue folder on the desk." },
+  { id: "p-huntington", title: "Huntington Lakes", notes: "Tenant: the Marsdens. Lease through August.\nRent is on time every month.\n\nGreg (property manager) handling the porch light and the leaky faucet in the back bathroom.\n\nTalk to David about whether to sell after the lease ends or extend another year." },
+];
+
+// ---------- Icons ----------
+const IconCheck = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 12 10 18 20 6"/></svg>
+);
+const IconPlus = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+);
+const IconTrash = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+);
+const IconPencil = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+);
+const IconUser = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+);
+const IconClock = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+);
+const IconClose = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+);
+
+// ---------- Schedule ----------
+function ScheduleSection({ events, onAdd, onUpdate, onDelete }) {
+  const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const editingEvent = useMemo(() => events.find(ev => ev.id === editingId) || null, [events, editingId]);
+
+  const buckets = useMemo(() => {
+    const result = { this: [], next: [], future: [] };
+    [...events]
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .forEach(e => {
+        const b = bucketFor(e.date);
+        if (b !== "past") result[b].push(e);
+      });
+    return result;
+  }, [events]);
+
+  return (
+    <section className="block">
+      <div className="section-head">
+        <h2>Schedule</h2>
+        <div style={{ marginLeft: "auto" }}>
+          <button className="btn primary" onClick={() => setOpen(true)}>
+            <IconPlus /> Add an event
+          </button>
+        </div>
+      </div>
+
+      {open && (
+        <div className="modal-backdrop" onClick={() => setOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <button className="modal-close" onClick={() => setOpen(false)} aria-label="Close"><IconClose /></button>
+            <div className="panel-body">
+              <h2>Add an event</h2>
+              <EventForm submitLabel="Save event" onSave={(e) => { onAdd({ id: "e" + Date.now(), ...e }); setOpen(false); }} onCancel={() => setOpen(false)} />
+            </div>
+          </div>
+        </div>
+      )}
+      {editingEvent && (
+        <div className="modal-backdrop" onClick={() => setEditingId(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <button className="modal-close" onClick={() => setEditingId(null)} aria-label="Close"><IconClose /></button>
+            <div className="panel-body">
+              <h2>Edit event</h2>
+              <EventForm submitLabel="Save changes" initial={editingEvent} onSave={(e) => { onUpdate(editingEvent.id, e); setEditingId(null); }} onCancel={() => setEditingId(null)} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ height: 0 }} />
+
+      <ScheduleGroup title="This Week" sub={`${formatRange(THIS_WEEK_START, addDays(THIS_WEEK_START, 6))}`} events={buckets.this} onEdit={setEditingId} onDelete={onDelete} />
+      <ScheduleGroup title="Next Week" sub={`${formatRange(NEXT_WEEK_START, addDays(NEXT_WEEK_START, 6))}`} events={buckets.next} onEdit={setEditingId} onDelete={onDelete} />
+      <ScheduleGroup title="Future" sub="Anything after that" events={buckets.future} onEdit={setEditingId} onDelete={onDelete} />
+    </section>
+  );
+}
+
+function formatRange(a, b) {
+  const sameMonth = a.getMonth() === b.getMonth();
+  if (sameMonth) {
+    return `${MONTHS[a.getMonth()].slice(0,3)} ${a.getDate()} – ${b.getDate()}`;
+  }
+  return `${MONTHS[a.getMonth()].slice(0,3)} ${a.getDate()} – ${MONTHS[b.getMonth()].slice(0,3)} ${b.getDate()}`;
+}
+
+function ScheduleGroup({ title, sub, events, onEdit, onDelete }) {
+  const confirmDelete = (e) => {
+    if (window.confirm(`Delete event "${e.title}"?`)) onDelete(e.id);
+  };
+  return (
+    <div className="schedule-group">
+      <h3>{title}<span className="sub">{sub}</span></h3>
+      {events.length === 0 ? (
+        <div className="empty">Nothing scheduled.</div>
+      ) : events.map(e => {
+        const d = parseISO(e.date);
+        const f = formatEventDate(d);
+        return (
+          <div className="event" key={e.id}>
+            <div className="date">
+              <span className="weekday">{f.weekday}</span>
+              {f.main}
+            </div>
+            <div className="body">
+              <p className="title">{e.title}</p>
+              {e.desc && <p className="desc">{e.desc}</p>}
+            </div>
+            <div className="actions">
+              <button className="icon-btn" onClick={() => onEdit(e.id)} aria-label={`Edit ${e.title}`} title="Edit event">
+                <IconPencil />
+              </button>
+              <button className="icon-btn danger" onClick={() => confirmDelete(e)} aria-label={`Delete ${e.title}`} title="Delete event">
+                <IconTrash />
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function EventForm({ initial, submitLabel, onSave, onCancel }) {
+  const [date, setDate] = useState(initial?.date || toISO(addDays(TODAY, 1)));
+  const [title, setTitle] = useState(initial?.title || "");
+  const [desc, setDesc] = useState(initial?.desc || "");
+  const titleRef = useRef(null);
+  useEffect(() => { titleRef.current && titleRef.current.focus(); }, []);
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    onSave({ date, title: title.trim(), desc: desc.trim() });
+  };
+
+  return (
+    <form onSubmit={submit}>
+      <div className="add-event-grid">
+        <label htmlFor="ev-date">Date</label>
+        <input id="ev-date" type="date" className="field" value={date} onChange={e => setDate(e.target.value)} required />
+
+        <label htmlFor="ev-title">What is it?</label>
+        <input id="ev-title" ref={titleRef} type="text" className="field" placeholder="e.g. Doctor appointment" value={title} onChange={e => setTitle(e.target.value)} required />
+
+        <label htmlFor="ev-desc">Notes (optional)</label>
+        <textarea id="ev-desc" className="field" placeholder="Time, address, who's going, anything to bring…" value={desc} onChange={e => setDesc(e.target.value)} />
+      </div>
+      <div className="actions" style={{ display: "flex", gap: 12, marginTop: 20, justifyContent: "flex-end" }}>
+        <button type="button" className="btn ghost" onClick={onCancel}>Cancel</button>
+        <button type="submit" className="btn primary">{submitLabel}</button>
+      </div>
+    </form>
+  );
+}
+
+// ---------- To Do ----------
+function TodoSection({ todos, onToggle, onAdd, onUpdate, onDelete }) {
+  const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const editingTodo = useMemo(() => todos.find(t => t.id === editingId) || null, [todos, editingId]);
+
+  const sorted = useMemo(() => {
+    const openTodos = todos.filter(t => !t.done);
+    const done = todos.filter(t => t.done);
+    return [...openTodos, ...done];
+  }, [todos]);
+
+  return (
+    <section className="block">
+      <div className="section-head">
+        <h2>To Do</h2>
+        <div style={{ marginLeft: "auto" }}>
+          <button className="btn primary" onClick={() => setOpen(true)}>
+            <IconPlus /> Add a task
+          </button>
+        </div>
+      </div>
+
+      {open && (
+        <div className="modal-backdrop" onClick={() => setOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <button className="modal-close" onClick={() => setOpen(false)} aria-label="Close"><IconClose /></button>
+            <div className="panel-body">
+              <h2>Add a task</h2>
+              <TodoForm submitLabel="Save task" onSave={(t) => { onAdd({ id: "t" + Date.now(), done: false, ...t }); setOpen(false); }} onCancel={() => setOpen(false)} />
+            </div>
+          </div>
+        </div>
+      )}
+      {editingTodo && (
+        <div className="modal-backdrop" onClick={() => setEditingId(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <button className="modal-close" onClick={() => setEditingId(null)} aria-label="Close"><IconClose /></button>
+            <div className="panel-body">
+              <h2>Edit task</h2>
+              <TodoForm submitLabel="Save changes" initial={editingTodo} onSave={(t) => { onUpdate(editingTodo.id, t); setEditingId(null); }} onCancel={() => setEditingId(null)} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ height: 0 }} />
+
+      <div className="todo-list">
+        {sorted.length === 0 && <div className="empty">No tasks yet.</div>}
+        {sorted.map(t => (
+          <div className={"todo" + (t.done ? " done" : "")} key={t.id}>
+            <button
+              className={"check" + (t.done ? " checked" : "")}
+              onClick={() => onToggle(t.id)}
+              aria-pressed={t.done}
+              aria-label={t.done ? `Mark "${t.title}" not done` : `Mark "${t.title}" done`}
+            >
+              {t.done && <IconCheck />}
+            </button>
+            <div>
+              <p className="title">{t.title}</p>
+              {t.desc && <p className="desc">{t.desc}</p>}
+              <span className="assignee">{t.done ? "Done · " : ""}{t.assignee}</span>
+            </div>
+            <div className="actions">
+              <button className="icon-btn" onClick={() => setEditingId(t.id)} aria-label={`Edit ${t.title}`} title="Edit task">
+                <IconPencil />
+              </button>
+              <button className="icon-btn danger" onClick={() => { if (window.confirm(`Delete task "${t.title}"?`)) onDelete(t.id); }} aria-label={`Delete ${t.title}`} title="Delete task">
+                <IconTrash />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function TodoForm({ initial, submitLabel, onSave, onCancel }) {
+  const [title, setTitle] = useState(initial?.title || "");
+  const [desc, setDesc] = useState(initial?.desc || "");
+  const [assignee, setAssignee] = useState(initial?.assignee || "Tina");
+  const titleRef = useRef(null);
+  useEffect(() => { titleRef.current && titleRef.current.focus(); }, []);
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    onSave({ title: title.trim(), desc: desc.trim(), assignee: assignee.trim() || "Tina" });
+  };
+
+  return (
+    <form onSubmit={submit}>
+      <div className="add-event-grid">
+        <label htmlFor="td-title">What needs doing?</label>
+        <input id="td-title" ref={titleRef} type="text" className="field" placeholder="e.g. Pick up prescription" value={title} onChange={e => setTitle(e.target.value)} required />
+
+        <label htmlFor="td-desc">Notes (optional)</label>
+        <textarea id="td-desc" className="field" placeholder="Details, where, when…" value={desc} onChange={e => setDesc(e.target.value)} />
+
+        <label>Who is doing it?</label>
+        <div className="assignee-picker">
+          {["Tina", "David", "Jason"].map(name => (
+            <button
+              type="button"
+              key={name}
+              className={"assignee-btn" + (assignee === name ? " active" : "")}
+              onClick={() => setAssignee(name)}
+              aria-pressed={assignee === name}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="actions" style={{ display: "flex", gap: 12, marginTop: 20, justifyContent: "flex-end" }}>
+        <button type="button" className="btn ghost" onClick={onCancel}>Cancel</button>
+        <button type="submit" className="btn primary">{submitLabel}</button>
+      </div>
+    </form>
+  );
+}
+
+// ---------- Projects ----------
+function ProjectFormFields({ titleRef, title, setTitle, notes, setNotes }) {
+  return (
+    <div className="add-event-grid">
+      <label htmlFor="pj-title">Project name</label>
+      <input id="pj-title" ref={titleRef} type="text" className="field" placeholder="e.g. Garden renovation" value={title} onChange={e => setTitle(e.target.value)} required />
+
+      <label htmlFor="pj-notes">Notes (optional)</label>
+      <textarea id="pj-notes" className="field" placeholder="Anything you want to remember about this project…" value={notes} onChange={e => setNotes(e.target.value)} />
+    </div>
+  );
+}
+
+function ProjectModal({ mode, initialTitle, initialNotes, onSave, onClose }) {
+  const [title, setTitle] = useState(initialTitle || "");
+  const [notes, setNotes] = useState(initialNotes || "");
+  const titleRef = useRef(null);
+  useEffect(() => { if (titleRef.current) titleRef.current.focus(); }, []);
+  const submit = (e) => {
+    e.preventDefault();
+    const t = title.trim();
+    if (!t) return;
+    onSave({ title: t, notes: notes.trim() });
+  };
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+        <button className="modal-close" onClick={onClose} aria-label="Close"><IconClose /></button>
+        <div className="panel-body">
+          <h2>{mode === "edit" ? "Edit project" : "Add a project"}</h2>
+          <form onSubmit={submit}>
+            <ProjectFormFields titleRef={titleRef} title={title} setTitle={setTitle} notes={notes} setNotes={setNotes} />
+            <div className="actions" style={{ display: "flex", gap: 12, marginTop: 20, justifyContent: "flex-end" }}>
+              <button type="button" className="btn ghost" onClick={onClose}>Cancel</button>
+              <button type="submit" className="btn primary">{mode === "edit" ? "Save changes" : "Save project"}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProjectsSection({ projects, onUpdateNotes, onUpdate, onDelete, onAdd }) {
+  const [adding, setAdding] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const editingProject = useMemo(() => projects.find(p => p.id === editingId) || null, [projects, editingId]);
+
+  return (
+    <section className="block">
+      <div className="section-head">
+        <h2>Projects</h2>
+        <div style={{ marginLeft: "auto" }}>
+          <button className="btn primary" onClick={() => setAdding(true)}>
+            <IconPlus /> Add a project
+          </button>
+        </div>
+      </div>
+      {adding && (
+        <ProjectModal
+          mode="add"
+          onSave={({ title, notes }) => { onAdd({ id: "p" + Date.now(), title, notes }); setAdding(false); }}
+          onClose={() => setAdding(false)}
+        />
+      )}
+      {editingProject && (
+        <ProjectModal
+          mode="edit"
+          initialTitle={editingProject.title}
+          initialNotes={editingProject.notes}
+          onSave={({ title, notes }) => { onUpdate(editingProject.id, { title, notes }); setEditingId(null); }}
+          onClose={() => setEditingId(null)}
+        />
+      )}
+      <div className="projects">
+        {projects.map(p => (
+          <ProjectCard
+            key={p.id}
+            project={p}
+            onChangeNotes={(v) => onUpdateNotes(p.id, v)}
+            onEdit={() => setEditingId(p.id)}
+            onDelete={() => onDelete(p.id)}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ProjectCard({ project, onChangeNotes, onEdit, onDelete }) {
+  const [savedVisible, setSavedVisible] = useState(false);
+  const timer = useRef(null);
+
+  const handleNotes = (v) => {
+    onChangeNotes(v);
+    setSavedVisible(true);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => setSavedVisible(false), 1200);
+  };
+
+  const confirmDelete = () => {
+    if (window.confirm(`Delete project "${project.title}"? This cannot be undone.`)) onDelete();
+  };
+
+  return (
+    <div className="project">
+      <div className="project-head">
+        <div className="pkicker">Project</div>
+        <div className="project-tools">
+          <button className="icon-btn" onClick={onEdit} aria-label={`Edit ${project.title}`} title="Edit project">
+            <IconPencil />
+          </button>
+          <button className="icon-btn danger" onClick={confirmDelete} aria-label={`Delete ${project.title}`} title="Delete project">
+            <IconTrash />
+          </button>
+        </div>
+      </div>
+      <h3>{project.title}</h3>
+      <textarea
+        value={project.notes}
+        onChange={(e) => handleNotes(e.target.value)}
+        placeholder="Write anything you want to remember about this…"
+        aria-label={`Notes for ${project.title}`}
+      />
+      <div className={"saved" + (savedVisible ? " visible" : "")}>Saved ✓</div>
+    </div>
+  );
+}
+
+// ---------- Top Menu ----------
+function TopMenu({ history }) {
+  const [panel, setPanel] = useState(null);
+  return (
+    <>
+      <nav className="topmenu">
+        <button className="topmenu-btn" onClick={() => setPanel("signin")}>
+          <IconUser /> Sign In
+        </button>
+        <button className="topmenu-btn" onClick={() => setPanel("history")}>
+          <IconClock /> History
+        </button>
+      </nav>
+      {panel && (
+        <div className="modal-backdrop" onClick={() => setPanel(null)}>
+          <div className={"modal" + (panel === "history" ? " wide" : "")} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <button className="modal-close" onClick={() => setPanel(null)} aria-label="Close"><IconClose /></button>
+            {panel === "signin" ? <SignInPanel onClose={() => setPanel(null)} /> : <HistoryPanel entries={history} />}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function SignInPanel({ onClose }) {
+  const [email, setEmail] = useState("");
+  const submit = (e) => {
+    e.preventDefault();
+    alert("Sign-in is not connected yet. This page saves to your device only.");
+    onClose();
+  };
+  return (
+    <div className="panel-body">
+      <h2>Sign In</h2>
+      <p className="panel-lead">Enter your email and we'll send a sign-in link.</p>
+      <form onSubmit={submit} className="signin-form">
+        <label htmlFor="si-email">Email address</label>
+        <input id="si-email" type="email" className="field" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <button type="submit" className="btn primary" style={{ width: "100%", marginTop: 8 }}>Send sign-in link</button>
+      </form>
+      <p className="panel-note">Not connected yet — your information is currently saved on this device.</p>
+    </div>
+  );
+}
+
+function HistoryPanel({ entries }) {
+  const fmt = (iso) => {
+    const d = new Date(iso);
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const yy = String(d.getFullYear()).slice(-2);
+    return `${mm}-${dd}-${yy}`;
+  };
+  return (
+    <div className="panel-body">
+      <h2>History</h2>
+      <p className="panel-lead">Recent activity on this page.</p>
+      {(!entries || entries.length === 0) ? (
+        <p className="panel-note">Nothing here yet.</p>
+      ) : (
+        <table className="history-table">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Date</th>
+              <th>Title</th>
+              <th>User</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entries.map((it, i) => (
+              <tr key={i}>
+                <td><span className="history-kind">{it.type} {it.action}</span></td>
+                <td className="history-date">{fmt(it.at)}</td>
+                <td className="history-text">{it.title}</td>
+                <td className="history-who">{it.who}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+// ---------- App ----------
+function App() {
+  const [events, setEvents] = usePersistedState("tina:events", SEED_EVENTS);
+  const [todos, setTodos] = usePersistedState("tina:todos", SEED_TODOS);
+  const [projects, setProjects] = usePersistedState("tina:projects", SEED_PROJECTS);
+  const [history, setHistory] = usePersistedState("tina:history", []);
+
+  const CURRENT_USER = "Tina";
+  const log = (type, action, title) => {
+    setHistory(prev => [{ type, action, title, who: CURRENT_USER, at: new Date().toISOString() }, ...prev]);
+  };
+
+  const addEvent = (e) => { setEvents(prev => [...prev, e]); log("Event", "added", e.title); };
+  const updateEvent = (id, patch) => {
+    setEvents(prev => prev.map(e => e.id === id ? { ...e, ...patch } : e));
+    const ev = events.find(e => e.id === id);
+    log("Event", "edited", patch.title || ev?.title || "");
+  };
+  const deleteEvent = (id) => {
+    const ev = events.find(e => e.id === id);
+    setEvents(prev => prev.filter(e => e.id !== id));
+    if (ev) log("Event", "deleted", ev.title);
+  };
+
+  const toggleTodo = (id) => {
+    const t = todos.find(t => t.id === id);
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
+    if (t) log("Todo", t.done ? "reopened" : "completed", t.title);
+  };
+  const addTodo = (t) => { setTodos(prev => [t, ...prev]); log("Todo", "added", t.title); };
+  const updateTodo = (id, patch) => {
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, ...patch } : t));
+    const t = todos.find(t => t.id === id);
+    log("Todo", "edited", patch.title || t?.title || "");
+  };
+  const deleteTodo = (id) => {
+    const t = todos.find(t => t.id === id);
+    setTodos(prev => prev.filter(t => t.id !== id));
+    if (t) log("Todo", "deleted", t.title);
+  };
+
+  // Migrate older object-shaped projects state to array shape if needed
+  useEffect(() => {
+    if (projects && !Array.isArray(projects)) {
+      const map = {
+        independent: "Independent Living",
+        pointe: "Pointe Pleasant",
+        huntington: "Huntington Lakes",
+      };
+      const arr = Object.entries(projects).map(([k, v]) => ({
+        id: "p-" + k,
+        title: map[k] || k,
+        notes: typeof v === "string" ? v : "",
+      }));
+      setProjects(arr);
+    }
+  }, [projects]);
+  const projectsArr = Array.isArray(projects) ? projects : [];
+
+  const addProject = (p) => { setProjects(prev => [...prev, p]); log("Project", "added", p.title); };
+  const updateProject = (id, patch) => {
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
+    const p = projectsArr.find(p => p.id === id);
+    log("Project", "edited", patch.title || p?.title || "");
+  };
+  const updateProjectNotes = (id, notes) => {
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, notes } : p));
+  };
+  const deleteProject = (id) => {
+    const p = projectsArr.find(p => p.id === id);
+    setProjects(prev => prev.filter(p => p.id !== id));
+    if (p) log("Project", "deleted", p.title);
+  };
+
+  return (
+    <div className="page">
+      <TopMenu history={history} />
+      <header className="masthead">
+        <h1>Tina's Page</h1>
+        <div className="today">Today is {formatLong(TODAY)}</div>
+      </header>
+
+      <ScheduleSection events={events} onAdd={addEvent} onUpdate={updateEvent} onDelete={deleteEvent} />
+      <TodoSection todos={todos} onToggle={toggleTodo} onAdd={addTodo} onUpdate={updateTodo} onDelete={deleteTodo} />
+      <ProjectsSection projects={projectsArr} onUpdateNotes={updateProjectNotes} onUpdate={updateProject} onDelete={deleteProject} onAdd={addProject} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
