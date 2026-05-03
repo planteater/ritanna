@@ -448,7 +448,7 @@ function ProjectCard({ project, onChangeNotes, onEdit, onDelete }) {
   }
 
   const confirmDelete = () => {
-    if (window.confirm(`Delete project "${project.title}"? This cannot be undone.`)) onDelete()
+    if (window.confirm(`Archive project "${project.title}"?`)) onDelete()
   }
 
   return (
@@ -567,9 +567,9 @@ export default function App() {
   useEffect(() => {
     if (!session) return
     Promise.all([
-      supabase.from('events').select('*').order('date'),
-      supabase.from('todos').select('*').order('position'),
-      supabase.from('projects').select('*').order('position'),
+      supabase.from('events').select('*').is('deleted_at', null).order('date'),
+      supabase.from('todos').select('*').is('deleted_at', null).order('position'),
+      supabase.from('projects').select('*').is('deleted_at', null).order('position'),
       supabase.from('history').select('*').order('at', { ascending: false }).limit(100),
     ]).then(([ev, td, pr, hi]) => {
       if (ev.data) setEvents(ev.data)
@@ -585,13 +585,13 @@ export default function App() {
     const channel = supabase
       .channel('shared-page')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
-        supabase.from('events').select('*').order('date').then(({ data }) => data && setEvents(data))
+        supabase.from('events').select('*').is('deleted_at', null).order('date').then(({ data }) => data && setEvents(data))
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'todos' }, () => {
-        supabase.from('todos').select('*').order('position').then(({ data }) => data && setTodos(data))
+        supabase.from('todos').select('*').is('deleted_at', null).order('position').then(({ data }) => data && setTodos(data))
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
-        supabase.from('projects').select('*').order('position').then(({ data }) => data && setProjects(data))
+        supabase.from('projects').select('*').is('deleted_at', null).order('position').then(({ data }) => data && setProjects(data))
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'history' }, () => {
         supabase.from('history').select('*').order('at', { ascending: false }).limit(100).then(({ data }) => data && setHistory(data))
@@ -619,9 +619,9 @@ export default function App() {
   }
   const deleteEvent = async (id) => {
     const ev = events.find(e => e.id === id)
-    await supabase.from('events').delete().eq('id', id)
+    await supabase.from('events').update({ deleted_at: new Date().toISOString() }).eq('id', id)
     setEvents(prev => prev.filter(e => e.id !== id))
-    if (ev) log('Event', 'deleted', ev.title)
+    if (ev) log('Event', 'archived', ev.title)
   }
 
   // Todos
@@ -643,9 +643,9 @@ export default function App() {
   }
   const deleteTodo = async (id) => {
     const t = todos.find(t => t.id === id)
-    await supabase.from('todos').delete().eq('id', id)
+    await supabase.from('todos').update({ deleted_at: new Date().toISOString() }).eq('id', id)
     setTodos(prev => prev.filter(t => t.id !== id))
-    if (t) log('Todo', 'deleted', t.title)
+    if (t) log('Todo', 'archived', t.title)
   }
 
   // Projects
@@ -665,9 +665,9 @@ export default function App() {
   }
   const deleteProject = async (id) => {
     const p = projects.find(p => p.id === id)
-    await supabase.from('projects').delete().eq('id', id)
+    await supabase.from('projects').update({ deleted_at: new Date().toISOString() }).eq('id', id)
     setProjects(prev => prev.filter(p => p.id !== id))
-    if (p) log('Project', 'deleted', p.title)
+    if (p) log('Project', 'archived', p.title)
   }
 
   if (session === undefined) return <div className="loading-screen">Loading…</div>
