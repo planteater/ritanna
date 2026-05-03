@@ -603,60 +603,60 @@ export default function App() {
   const userEmail = session?.user?.email || ''
   const who = userEmail
 
-  const log = useCallback(async (type, action, title) => {
-    await supabase.from('history').insert({ type, action, title, who, at: new Date().toISOString() })
+  const log = useCallback(async (type, action, title, targetId) => {
+    await supabase.from('history').insert({ type, action, title, target_id: targetId, who, at: new Date().toISOString() })
   }, [who])
 
   // Events
   const addEvent = async (ev) => {
     const { data } = await supabase.from('events').insert({ ...ev, id: 'e' + Date.now() }).select().single()
-    if (data) { setEvents(prev => [...prev, data]); log('Event', 'added', ev.title) }
+    if (data) { setEvents(prev => [...prev, data]); log('Event', 'added', ev.title, data.id) }
   }
   const updateEvent = async (id, patch) => {
     await supabase.from('events').update(patch).eq('id', id)
     setEvents(prev => prev.map(e => e.id === id ? { ...e, ...patch } : e))
-    log('Event', 'edited', patch.title || events.find(e => e.id === id)?.title || '')
+    log('Event', 'edited', patch.title || events.find(e => e.id === id)?.title || '', id)
   }
   const deleteEvent = async (id) => {
     const ev = events.find(e => e.id === id)
     await supabase.from('events').update({ deleted_at: new Date().toISOString() }).eq('id', id)
     setEvents(prev => prev.filter(e => e.id !== id))
-    if (ev) log('Event', 'archived', ev.title)
+    if (ev) log('Event', 'archived', ev.title, id)
   }
 
   // Todos
   const addTodo = async (t) => {
     const { data } = await supabase.from('todos').insert({ ...t, id: 't' + Date.now(), done: false, position: todos.length }).select().single()
-    if (data) { setTodos(prev => [data, ...prev]); log('Todo', 'added', t.title) }
+    if (data) { setTodos(prev => [data, ...prev]); log('Todo', 'added', t.title, data.id) }
   }
   const toggleTodo = async (id) => {
     const t = todos.find(t => t.id === id)
     if (!t) return
     await supabase.from('todos').update({ done: !t.done }).eq('id', id)
     setTodos(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t))
-    log('Todo', t.done ? 'reopened' : 'completed', t.title)
+    log('Todo', t.done ? 'reopened' : 'completed', t.title, id)
   }
   const updateTodo = async (id, patch) => {
     await supabase.from('todos').update(patch).eq('id', id)
     setTodos(prev => prev.map(t => t.id === id ? { ...t, ...patch } : t))
-    log('Todo', 'edited', patch.title || todos.find(t => t.id === id)?.title || '')
+    log('Todo', 'edited', patch.title || todos.find(t => t.id === id)?.title || '', id)
   }
   const deleteTodo = async (id) => {
     const t = todos.find(t => t.id === id)
     await supabase.from('todos').update({ deleted_at: new Date().toISOString() }).eq('id', id)
     setTodos(prev => prev.filter(t => t.id !== id))
-    if (t) log('Todo', 'archived', t.title)
+    if (t) log('Todo', 'archived', t.title, id)
   }
 
   // Projects
   const addProject = async ({ title, notes }) => {
     const { data } = await supabase.from('projects').insert({ id: 'p' + Date.now(), title, notes, position: projects.length }).select().single()
-    if (data) { setProjects(prev => [...prev, data]); log('Project', 'added', title) }
+    if (data) { setProjects(prev => [...prev, data]); log('Project', 'added', title, data.id) }
   }
   const updateProject = async (id, patch) => {
     await supabase.from('projects').update(patch).eq('id', id)
     setProjects(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p))
-    log('Project', 'edited', patch.title || projects.find(p => p.id === id)?.title || '')
+    log('Project', 'edited', patch.title || projects.find(p => p.id === id)?.title || '', id)
   }
   const updateProjectNotes = async (id, notes) => {
     // Debounced autosave — optimistic update only, no history log
@@ -667,7 +667,7 @@ export default function App() {
     const p = projects.find(p => p.id === id)
     await supabase.from('projects').update({ deleted_at: new Date().toISOString() }).eq('id', id)
     setProjects(prev => prev.filter(p => p.id !== id))
-    if (p) log('Project', 'archived', p.title)
+    if (p) log('Project', 'archived', p.title, id)
   }
 
   if (session === undefined) return <div className="loading-screen">Loading…</div>
