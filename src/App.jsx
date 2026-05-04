@@ -264,8 +264,9 @@ function TodoSection({ todos, onToggle, onAdd, onUpdate, onDelete }) {
   const editingTodo = useMemo(() => todos.find(t => t.id === editingId) || null, [todos, editingId])
 
   const sorted = useMemo(() => {
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000
     const open = todos.filter(t => !t.done)
-    const done = todos.filter(t => t.done)
+    const done = todos.filter(t => t.done && t.done_at && new Date(t.done_at).getTime() >= cutoff)
     return [...open, ...done]
   }, [todos])
 
@@ -579,26 +580,34 @@ export default function App() {
     })
   }, [session])
 
+  // Refetch all data — used by both the visibility handler and realtime callbacks
+  const refetchAll = useCallback(() => {
+    supabase.from('events').select('*').is('deleted_at', null).order('date').then(({ data }) => data && setEvents(data))
+    supabase.from('todos').select('*').is('deleted_at', null).order('position').then(({ data }) => data && setTodos(data))
+    supabase.from('projects').select('*').is('deleted_at', null).order('position').then(({ data }) => data && setProjects(data))
+    supabase.from('history').select('*').order('at', { ascending: false }).limit(100).then(({ data }) => data && setHistory(data))
+  }, [])
+
+  // Refetch when tab becomes visible again (covers dropped websockets while backgrounded)
+  useEffect(() => {
+    if (!session) return
+    const onVisible = () => { if (document.visibilityState === 'visible') refetchAll() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [session, refetchAll])
+
   // Realtime subscriptions — keep all clients in sync
   useEffect(() => {
     if (!session) return
     const channel = supabase
       .channel('shared-page')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
-        supabase.from('events').select('*').is('deleted_at', null).order('date').then(({ data }) => data && setEvents(data))
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'todos' }, () => {
-        supabase.from('todos').select('*').is('deleted_at', null).order('position').then(({ data }) => data && setTodos(data))
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
-        supabase.from('projects').select('*').is('deleted_at', null).order('position').then(({ data }) => data && setProjects(data))
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'history' }, () => {
-        supabase.from('history').select('*').order('at', { ascending: false }).limit(100).then(({ data }) => data && setHistory(data))
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, refetchAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'todos' }, refetchAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, refetchAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'history' }, refetchAll)
       .subscribe()
     return () => supabase.removeChannel(channel)
-  }, [session])
+  }, [session, refetchAll])
 
   const userEmail = session?.user?.email || ''
   const who = userEmail
@@ -632,8 +641,9 @@ export default function App() {
   const toggleTodo = async (id) => {
     const t = todos.find(t => t.id === id)
     if (!t) return
-    await supabase.from('todos').update({ done: !t.done }).eq('id', id)
-    setTodos(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t))
+    const done_at = t.done ? null : new Date().toISOString()
+    await supabase.from('todos').update({ done: !t.done, done_at }).eq('id', id)
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, done: !t.done, done_at } : t))
     log('Todo', t.done ? 'reopened' : 'completed', t.title, id)
   }
   const updateTodo = async (id, patch) => {

@@ -191,7 +191,7 @@ section.block { margin-bottom: 72px; }
   font-size: 22px;
 }
 .field:focus { outline: none; border-color: var(--accent); background: white; }
-textarea.field { min-height: 96px; resize: vertical; line-height: 1.4; }
+textarea.field { min-height: 160px; resize: vertical; line-height: 1.4; }
 
 /* TO DO */
 .todo-list { display: flex; flex-direction: column; gap: 12px; }
@@ -307,9 +307,9 @@ textarea.field { min-height: 96px; resize: vertical; line-height: 1.4; }
 }
 .assignee-btn:hover { border-color: var(--ink); }
 .assignee-btn.active {
-  background: var(--accent);
+  background: var(--accent-soft);
   border-color: var(--accent);
-  color: white;
+  color: var(--accent-deep);
 }
 .project-head {
   display: flex;
@@ -434,7 +434,7 @@ textarea.field { min-height: 96px; resize: vertical; line-height: 1.4; }
   background: var(--paper);
   border-radius: 18px;
   box-shadow: 0 20px 60px -10px oklch(0.2 0.05 60 / 0.4);
-  max-width: 520px;
+  max-width: 700px;
   width: 100%;
   position: relative;
   padding: 36px 36px 32px;
@@ -624,7 +624,7 @@ textarea.field { min-height: 96px; resize: vertical; line-height: 1.4; }
   .schedule-group h3 { font-size: 22px; }
   .schedule-group h3 .sub { font-size: 14px; }
   .field { font-size: 18px; min-height: 52px; padding: 10px 12px; }
-  textarea.field { min-height: 88px; }
+  textarea.field { min-height: 140px; }
   .assignee-btn { flex: 1 1 calc(50% - 4px); min-width: 0; font-size: 18px; min-height: 52px; padding: 0 10px; }
   .todo { grid-template-columns: 40px 1fr; gap: 12px; padding: 14px 16px; }
   .check { width: 38px; height: 38px; }
