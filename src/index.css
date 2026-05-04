@@ -293,6 +293,50 @@ textarea.field { min-height: 160px; resize: vertical; line-height: 1.4; }
   flex-direction: column;
   min-height: 360px;
 }
+.time-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.time-part {
+  width: auto;
+  min-width: 0;
+  flex: 0 0 auto;
+  padding-right: 28px;
+}
+.time-colon {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  margin: 0 -2px;
+}
+.ampm-toggle {
+  display: flex;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--rule);
+  margin-left: 4px;
+}
+.ampm-btn {
+  padding: 0 16px;
+  min-height: 52px;
+  border: none;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.ampm-btn + .ampm-btn { border-left: 2px solid var(--rule); }
+.ampm-btn:hover { background: var(--accent-soft); }
+.ampm-btn.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-deep);
+}
+
 .assignee-picker {
   display: flex;
   gap: 8px;
