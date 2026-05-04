@@ -47,6 +47,19 @@ function formatRange(a, b) {
   return `${MONTHS[a.getMonth()].slice(0,3)} ${a.getDate()} – ${MONTHS[b.getMonth()].slice(0,3)} ${b.getDate()}`
 }
 
+const TIME_OPTIONS = (() => {
+  const opts = [{ value: '', label: 'No time' }]
+  for (let i = 0; i < 96; i++) {
+    const mins = i * 15
+    const h24 = Math.floor(mins / 60)
+    const m = mins % 60
+    const ampm = h24 < 12 ? 'am' : 'pm'
+    const h12 = h24 === 0 ? 12 : h24 > 12 ? h24 - 12 : h24
+    opts.push({ value: `${h12}:${String(m).padStart(2, '0')}${ampm}` })
+  }
+  return opts
+})()
+
 const THIS_WEEK_START = startOfWeek(TODAY)
 const NEXT_WEEK_START = addDays(THIS_WEEK_START, 7)
 const FUTURE_START = addDays(THIS_WEEK_START, 14)
@@ -218,6 +231,7 @@ function ScheduleGroup({ title, sub, events, onEdit, onDelete }) {
             <div className="date">
               <span className="weekday">{f.weekday}</span>
               {f.main}
+              {e.start_time && <span className="event-time">{e.start_time}</span>}
             </div>
             <div className="body">
               <p className="title">{e.title}</p>
@@ -238,13 +252,14 @@ function EventForm({ initial, submitLabel, onSave, onCancel }) {
   const [date, setDate] = useState(initial?.date || toISO(addDays(TODAY, 1)))
   const [title, setTitle] = useState(initial?.title || '')
   const [desc, setDesc] = useState(initial?.description || '')
+  const [startTime, setStartTime] = useState(initial?.start_time || '')
   const titleRef = useRef(null)
   useEffect(() => { titleRef.current?.focus() }, [])
 
   const submit = (e) => {
     e.preventDefault()
     if (!title.trim()) return
-    onSave({ date, title: title.trim(), description: desc.trim() })
+    onSave({ date, title: title.trim(), description: desc.trim(), start_time: startTime })
   }
 
   return (
@@ -252,6 +267,10 @@ function EventForm({ initial, submitLabel, onSave, onCancel }) {
       <div className="add-event-grid">
         <label htmlFor="ev-date">Date</label>
         <input id="ev-date" type="date" className="field" value={date} onChange={e => setDate(e.target.value)} required />
+        <label htmlFor="ev-time">Start time</label>
+        <select id="ev-time" className="field" value={startTime} onChange={e => setStartTime(e.target.value)}>
+          {TIME_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.value || 'No time'}</option>)}
+        </select>
         <label htmlFor="ev-title">What is it?</label>
         <input id="ev-title" ref={titleRef} type="text" className="field" placeholder="e.g. Doctor appointment" value={title} onChange={e => setTitle(e.target.value)} required />
         <label htmlFor="ev-desc">Notes (optional)</label>
