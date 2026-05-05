@@ -85,23 +85,31 @@ const IconClose = () => (
 )
 
 // ---------- Auth Gate ----------
-function AuthGate({ onSignedIn }) {
+function AuthGate() {
   const [email, setEmail] = useState('')
-  const [sent, setSent] = useState(false)
+  const [step, setStep] = useState('email') // 'email' | 'code'
+  const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const submit = async (e) => {
+  const submitEmail = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.href },
-    })
+    const { error } = await supabase.auth.signInWithOtp({ email })
     setLoading(false)
     if (error) setError(error.message)
-    else setSent(true)
+    else setStep('code')
+  }
+
+  const submitCode = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' })
+    setLoading(false)
+    if (error) setError(error.message)
+    // on success, onAuthStateChange in App fires automatically
   }
 
   const signInWithGoogle = () =>
@@ -111,18 +119,14 @@ function AuthGate({ onSignedIn }) {
     <div className="auth-gate">
       <div className="auth-card">
         <h1>Tina's Page</h1>
-        <p className="auth-lead">Sign in to view and manage the page.</p>
         <button className="btn google-btn" onClick={signInWithGoogle}>
           <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
           Sign in with Google
         </button>
         <div className="auth-divider"><span>or</span></div>
-        {sent ? (
-          <div className="auth-success">
-            Check your email — we sent a sign-in link to <strong>{email}</strong>.
-          </div>
-        ) : (
-          <form onSubmit={submit}>
+        {step === 'email' ? (
+          <form onSubmit={submitEmail}>
+            <p className="auth-lead">Enter your email and we'll send you a sign-in code.</p>
             <label htmlFor="auth-email">Email address</label>
             <input
               id="auth-email"
@@ -133,9 +137,33 @@ function AuthGate({ onSignedIn }) {
               onChange={e => setEmail(e.target.value)}
               required
             />
-            {error && <p style={{ color: 'oklch(0.55 0.18 25)', fontSize: 18, margin: '4px 0 0' }}>{error}</p>}
+            {error && <p className="auth-error">{error}</p>}
             <button type="submit" className="btn primary" style={{ marginTop: 8 }} disabled={loading}>
-              {loading ? 'Sending…' : 'Send sign-in link'}
+              {loading ? 'Sending…' : 'Send code'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={submitCode}>
+            <p className="auth-lead">We sent a 6-digit code to <strong>{email}</strong>. Enter it below.</p>
+            <label htmlFor="auth-code">Sign-in code</label>
+            <input
+              id="auth-code"
+              type="text"
+              inputMode="numeric"
+              className="field auth-code-input"
+              placeholder="000000"
+              maxLength={8}
+              value={code}
+              onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
+              autoFocus
+              required
+            />
+            {error && <p className="auth-error">{error}</p>}
+            <button type="submit" className="btn primary" style={{ marginTop: 8 }} disabled={loading || code.length < 8}>
+              {loading ? 'Verifying…' : 'Sign in'}
+            </button>
+            <button type="button" className="btn ghost" style={{ marginTop: 8 }} onClick={() => { setStep('email'); setCode(''); setError(null) }}>
+              Use a different email
             </button>
           </form>
         )}

@@ -634,6 +634,17 @@ textarea.field { min-height: 160px; resize: vertical; line-height: 1.4; }
   background: var(--rule);
 }
 .auth-card label { font-weight: 600; font-size: 20px; }
+.auth-code-input {
+  font-size: 32px;
+  letter-spacing: 0.25em;
+  text-align: center;
+  font-weight: 700;
+}
+.auth-error {
+  color: oklch(0.55 0.18 25);
+  font-size: 18px;
+  margin: 4px 0 0;
+}
 .auth-success {
   background: var(--done-soft);
   border: 2px solid oklch(0.85 0.06 150);
