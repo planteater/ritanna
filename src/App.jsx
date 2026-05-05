@@ -113,7 +113,7 @@ function AuthGate() {
   }
 
   const signInWithGoogle = () =>
-    supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } })
+    supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
 
   return (
     <div className="auth-gate">
@@ -152,14 +152,14 @@ function AuthGate() {
               inputMode="numeric"
               className="field auth-code-input"
               placeholder="000000"
-              maxLength={8}
+              maxLength={6}
               value={code}
               onChange={e => setCode(e.target.value.replace(/\D/g, ''))}
               autoFocus
               required
             />
             {error && <p className="auth-error">{error}</p>}
-            <button type="submit" className="btn primary" style={{ marginTop: 8 }} disabled={loading || code.length < 8}>
+            <button type="submit" className="btn primary" style={{ marginTop: 8 }} disabled={loading || code.length < 6}>
               {loading ? 'Verifying…' : 'Sign in'}
             </button>
             <button type="button" className="btn ghost" style={{ marginTop: 8 }} onClick={() => { setStep('email'); setCode(''); setError(null) }}>
