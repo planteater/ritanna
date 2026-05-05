@@ -280,7 +280,7 @@ textarea.field { min-height: 160px; resize: vertical; line-height: 1.4; }
 /* PROJECTS */
 .projects {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 24px;
 }
 .project {
@@ -660,7 +660,7 @@ textarea.field { min-height: 160px; resize: vertical; line-height: 1.4; }
   .event .actions { grid-column: 1 / -1; opacity: 1; justify-content: flex-end; }
   .add-event-grid { grid-template-columns: 1fr; gap: 8px 12px; }
   .add-event-grid label { margin-top: 8px; }
-  .projects { grid-template-columns: 1fr; }
+
   .todo { grid-template-columns: 48px 1fr; }
   .todo .actions { grid-column: 1 / -1; opacity: 1; justify-content: flex-end; }
 }
