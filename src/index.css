@@ -293,6 +293,18 @@ textarea.field { min-height: 160px; resize: vertical; line-height: 1.4; }
   flex-direction: column;
   min-height: 360px;
 }
+.date-picker {
+  display: flex;
+  gap: 8px;
+}
+.date-month {
+  flex: 2;
+  min-width: 0;
+}
+.date-part {
+  flex: 1;
+  min-width: 0;
+}
 .time-picker {
   display: flex;
   align-items: center;

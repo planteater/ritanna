@@ -274,8 +274,14 @@ function parseStartTime(t) {
   return { hour: h, minute: m, ampm }
 }
 
+const CURRENT_YEAR = TODAY.getFullYear()
+const DAYS = Array.from({ length: 31 }, (_, i) => i + 1)
+
 function EventForm({ initial, submitLabel, onSave, onCancel }) {
-  const [date, setDate] = useState(initial?.date || toISO(addDays(TODAY, 1)))
+  const initDate = initial?.date ? parseISO(initial.date) : addDays(TODAY, 1)
+  const [month, setMonth] = useState(initDate.getMonth())
+  const [day, setDay] = useState(initDate.getDate())
+  const [year, setYear] = useState(initDate.getFullYear())
   const [title, setTitle] = useState(initial?.title || '')
   const [desc, setDesc] = useState(initial?.description || '')
   const { hour: initHour, minute: initMinute, ampm: initAmpm } = parseStartTime(initial?.start_time)
@@ -288,14 +294,26 @@ function EventForm({ initial, submitLabel, onSave, onCancel }) {
   const submit = (e) => {
     e.preventDefault()
     if (!title.trim()) return
+    const date = toISO(new Date(year, month, day))
     onSave({ date, title: title.trim(), description: desc.trim(), start_time: `${hour}:${minute}${ampm.toLowerCase()}` })
   }
 
   return (
     <form onSubmit={submit}>
       <div className="add-event-grid">
-        <label htmlFor="ev-date">Date</label>
-        <input id="ev-date" type="date" className="field" value={date} onChange={e => setDate(e.target.value)} required />
+        <label htmlFor="ev-month">Date</label>
+        <div className="date-picker">
+          <select id="ev-month" className="field date-month" value={month} onChange={e => setMonth(Number(e.target.value))}>
+            {MONTHS.map((m, i) => <option key={i} value={i}>{m}</option>)}
+          </select>
+          <select className="field date-part" value={day} onChange={e => setDay(Number(e.target.value))}>
+            {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          <select className="field date-part" value={year} onChange={e => setYear(Number(e.target.value))}>
+            <option value={CURRENT_YEAR}>{CURRENT_YEAR}</option>
+            <option value={CURRENT_YEAR + 1}>{CURRENT_YEAR + 1}</option>
+          </select>
+        </div>
         <label>Start time</label>
         <div className="time-picker">
           <select className="field time-part" value={hour} onChange={e => setHour(e.target.value)}>
