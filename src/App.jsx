@@ -348,9 +348,14 @@ function TodoSection({ todos, onToggle, onAdd, onUpdate, onDelete }) {
   const editingTodo = useMemo(() => todos.find(t => t.id === editingId) || null, [todos, editingId])
 
   const sorted = useMemo(() => {
-    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000
-    const open = todos.filter(t => !t.done)
-    const done = todos.filter(t => t.done && t.done_at && new Date(t.done_at).getTime() >= cutoff)
+    const createdAt = t => {
+      if (t.created_at) return new Date(t.created_at).getTime()
+      const n = Number(String(t.id || '').replace(/^t/, ''))
+      return Number.isFinite(n) ? n : 0
+    }
+    const today = new Date().toDateString()
+    const open = todos.filter(t => !t.done).sort((a, b) => createdAt(b) - createdAt(a))
+    const done = todos.filter(t => t.done && t.done_at && new Date(t.done_at).toDateString() === today)
     return [...open, ...done]
   }, [todos])
 
